@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="PersistentFeed" representedClassName="PersistentFeed" syncable="YES" codeGenerationType="class">
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="images" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PersistentFeedImage" inverseName="feed" inverseEntity="PersistentFeedImage"/>
+    </entity>
+    <entity name="PersistentFeedImage" representedClassName="PersistentFeedImage" syncable="YES" codeGenerationType="class">
+        <attribute name="desc" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="url" attributeType="URI"/>
+        <relationship name="feed" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PersistentFeed" inverseName="images" inverseEntity="PersistentFeed"/>
+    </entity>
+    <elements>
+        <element name="PersistentFeedImage" positionX="-45" positionY="0" width="128" height="118"/>
+        <element name="PersistentFeed" positionX="-18" positionY="27" width="128" height="73"/>
+    </elements>
+</model>
