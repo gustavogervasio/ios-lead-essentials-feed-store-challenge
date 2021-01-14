@@ -5,25 +5,11 @@ public class CoreDataFeedStore: FeedStore {
 
     private struct CoreDataError: Error {}
 
-    private lazy var container: NSPersistentContainer = {
-        let modelName = "FeedStore"
-        guard let modelURL = Bundle(for: type(of: self)).url(forResource: modelName, withExtension: "momd") else {
-            fatalError("ModelURL is unavailable")
-        }
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Model is unavailable")
-        }
+    private let container: NSPersistentContainer
 
-        let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error {
-                fatalError("Unresolved error \(error), \(error)")
-            }
-        })
-        return container
-    }()
-
-    public init() {}
+    public init(container: NSPersistentContainer) {
+        self.container = container
+    }
 
     public func retrieve(completion: @escaping RetrievalCompletion) {
 
@@ -32,7 +18,7 @@ public class CoreDataFeedStore: FeedStore {
         guard let fetchedFeed = try? context.fetch(request) else {
             return completion(.failure(CoreDataError()))
         }
-        guard let feed = fetchedFeed.last else { return completion(.empty) }
+        guard let feed = fetchedFeed.first else { return completion(.empty) }
 
         let images = feed.mutableOrderedSetValue(forKeyPath: "images").array as! [NSManagedObject]
         let timestamp = feed.value(forKey: "timestamp") as! Date
@@ -63,6 +49,11 @@ public class CoreDataFeedStore: FeedStore {
             return completion(CoreDataError())
         }
 
+        let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
+        if let fetchedFeed = try? context.fetch(request) {
+            let _ = fetchedFeed.map({context.delete($0)})
+        }
+
         let images = feed.map { localFeedImage -> NSManagedObject in
             let persistentFeedImage = NSManagedObject(entity: feedImageEntity, insertInto: context)
             persistentFeedImage.setValue(localFeedImage.description, forKey: "desc")
@@ -77,6 +68,12 @@ public class CoreDataFeedStore: FeedStore {
         let persistentFeed = NSManagedObject(entity: feedEntity, insertInto: context)
         persistentFeed.mutableOrderedSetValue(forKeyPath: "images").addObjects(from: images)
         persistentFeed.setValue(timestamp, forKey: "timestamp")
-        completion(nil)
+
+        do {
+            try context.save()
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
 }

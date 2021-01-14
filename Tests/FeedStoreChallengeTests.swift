@@ -56,9 +56,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 
 	func test_insert_overridesPreviouslyInsertedCacheValues() {
-//		let sut = makeSUT()
-//
-//		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
+		let sut = makeSUT()
+
+		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
 	}
 
 	func test_delete_deliversNoErrorOnEmptyCache() {
@@ -94,7 +94,31 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-        return CoreDataFeedStore()
+
+        let container: NSPersistentContainer = {
+            let modelName = "FeedStore"
+            guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: modelName, withExtension: "momd") else {
+                fatalError("ModelURL is unavailable")
+            }
+            guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+                fatalError("Model is unavailable")
+            }
+
+            let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
+
+            let description = NSPersistentStoreDescription()
+            description.url = URL(fileURLWithPath: "/dev/null")
+            container.persistentStoreDescriptions = [description]
+
+            container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+                if let error = error {
+                    fatalError("Unresolved error \(error), \(error)")
+                }
+            })
+            return container
+        }()
+
+        return CoreDataFeedStore(container: container)
     }
 }
 
