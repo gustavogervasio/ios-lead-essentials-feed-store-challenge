@@ -31,12 +31,12 @@ public class CoreDataFeedStore: FeedStore {
 
         let context = container.viewContext
         context.perform { [weak self] in
-            if let fetchedFeed = self?.fetchFeed(from: context) {
-                self?.deleteFeed(fetchedFeed, fromContext: context)
-                completion(self?.save(context: context))
-            } else {
-                completion(nil)
+
+            guard let fetchedFeed = self?.fetchFeed(from: context) else {
+                return completion(nil)
             }
+            self?.deleteFeed(fetchedFeed, fromContext: context)
+            completion(self?.save(context: context))
         }
     }
 
