@@ -18,16 +18,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
     //  Repeat this process until all tests are passing.
     //
     //  ***********************
-    override func setUp() {
-        super.setUp()
-        setupEmptyStoreState()
-    }
-
-    override func tearDown() {
-        super.tearDown()
-        undoStoreSideEffects()
-    }
-
 	func test_retrieve_deliversEmptyOnEmptyCache() {
 		let sut = makeSUT()
 
@@ -109,19 +99,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
     }
 
     private func testSpecificStoreURL() -> URL {
-        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).sqlite")
-    }
-
-    private func setupEmptyStoreState() {
-        deleteStoreArtifacts()
-    }
-
-    private func undoStoreSideEffects() {
-        deleteStoreArtifacts()
-    }
-
-    private func deleteStoreArtifacts() {
-        try? FileManager.default.removeItem(at: testSpecificStoreURL())
+        return URL(fileURLWithPath: "/dev/null")
     }
 }
 
