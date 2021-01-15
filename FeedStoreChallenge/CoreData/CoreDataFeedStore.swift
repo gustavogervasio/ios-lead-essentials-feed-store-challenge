@@ -4,7 +4,6 @@ import CoreData
 public class CoreDataFeedStore: FeedStore {
 
     private let context: NSManagedObjectContext
-    private static let modelName = "FeedStore"
 
     public init(modelName: String, storeURL: URL, bundle: Bundle) throws {
         let container = try PersistentContainer(modelName: modelName, storeURL: storeURL, bundle: bundle)
@@ -110,11 +109,11 @@ private extension Array where Element == LocalFeedImage {
     }
 }
 
-class PersistentContainer: NSPersistentContainer {
+final class PersistentContainer: NSPersistentContainer {
 
     private struct CoreDataInitError: Error {}
 
-    init(modelName: String, storeURL: URL, bundle: Bundle) throws {
+    required init(modelName: String, storeURL: URL, bundle: Bundle) throws {
 
         guard let modelURL = bundle.url(forResource: modelName, withExtension: "momd") else {
             throw CoreDataInitError()
