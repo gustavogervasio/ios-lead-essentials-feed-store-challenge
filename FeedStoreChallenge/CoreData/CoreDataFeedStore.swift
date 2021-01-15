@@ -69,7 +69,7 @@ public class CoreDataFeedStore: FeedStore {
 
     private func fetchFeed(from context: NSManagedObjectContext) -> PersistentFeed? {
 
-        let request = NSFetchRequest<PersistentFeed>(entityName: "PersistentFeed")
+        let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
         return try? context.fetch(request).first
     }
 
