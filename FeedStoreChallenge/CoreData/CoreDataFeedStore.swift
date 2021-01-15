@@ -7,7 +7,10 @@ public class CoreDataFeedStore: FeedStore {
     private static let modelName = "FeedStore"
 
     public init(storeURL: URL) {
-        self.context = CoreDataFeedStore.initializeContainer(storeURL: storeURL).newBackgroundContext()
+        let container = NSPersistentContainer.initialize(modelName: CoreDataFeedStore.modelName,
+                                                         bundle: Bundle(for: CoreDataFeedStore.self),
+                                                         storeURL: storeURL)
+        self.context = container.newBackgroundContext()
     }
 
     public func retrieve(completion: @escaping RetrievalCompletion) {
@@ -75,29 +78,6 @@ public class CoreDataFeedStore: FeedStore {
     private func deleteFeed(_ feed: PersistentFeed) {
         context.delete(feed)
     }
-
-    private class func initializeContainer(storeURL: URL) -> NSPersistentContainer {
-
-        guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
-            fatalError("ModelURL is unavailable")
-        }
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Model is unavailable")
-        }
-
-        let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
-
-        let description = NSPersistentStoreDescription()
-        description.url = storeURL
-        container.persistentStoreDescriptions = [description]
-
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error {
-                fatalError("Unresolved error \(error), \(error)")
-            }
-        })
-        return container
-    }
 }
 
 private extension Array where Element == PersistentFeedImage {
@@ -129,5 +109,31 @@ private extension Array where Element == LocalFeedImage {
             persistentFeedImage.url = feedImage.url
             return persistentFeedImage
         }
+    }
+}
+
+private extension NSPersistentContainer {
+
+    static func initialize(modelName: String, bundle: Bundle, storeURL: URL) -> NSPersistentContainer {
+
+        guard let modelURL = bundle.url(forResource: modelName, withExtension: "momd") else {
+            fatalError("ModelURL is unavailable")
+        }
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Model is unavailable")
+        }
+
+        let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
+
+        let description = NSPersistentStoreDescription()
+        description.url = storeURL
+        container.persistentStoreDescriptions = [description]
+
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error {
+                fatalError("Unresolved error \(error), \(error)")
+            }
+        })
+        return container
     }
 }
