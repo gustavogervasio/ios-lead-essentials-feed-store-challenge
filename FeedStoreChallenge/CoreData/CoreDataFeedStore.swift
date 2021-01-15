@@ -6,10 +6,8 @@ public class CoreDataFeedStore: FeedStore {
     private let context: NSManagedObjectContext
     private static let modelName = "FeedStore"
 
-    public init(storeURL: URL) throws {
-        let container = try NSPersistentContainer.initialize(modelName: CoreDataFeedStore.modelName,
-                                                             bundle: Bundle(for: CoreDataFeedStore.self),
-                                                             storeURL: storeURL)
+    public init(modelName: String, storeURL: URL, bundle: Bundle) throws {
+        let container = try PersistentContainer(modelName: modelName, storeURL: storeURL, bundle: bundle)
         self.context = container.newBackgroundContext()
     }
 
@@ -112,34 +110,37 @@ private extension Array where Element == LocalFeedImage {
     }
 }
 
-private extension NSPersistentContainer {
+class PersistentContainer: NSPersistentContainer {
 
-    static func initialize(modelName: String, bundle: Bundle, storeURL: URL) throws -> NSPersistentContainer {
+    private struct CoreDataInitError: Error {}
+
+    init(modelName: String, storeURL: URL, bundle: Bundle) throws {
 
         guard let modelURL = bundle.url(forResource: modelName, withExtension: "momd") else {
-            throw CoreDataError()
-        }
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            throw CoreDataError()
+            throw CoreDataInitError()
         }
 
-        let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            throw CoreDataInitError()
+        }
+
+        super.init(name: modelName, managedObjectModel: managedObjectModel)
+
+        try loadStoresFromURL(storeURL)
+    }
+
+    // MARK: - Private Methods
+    private func loadStoresFromURL(_ url: URL) throws {
 
         let description = NSPersistentStoreDescription()
-        description.url = storeURL
-        container.persistentStoreDescriptions = [description]
+        description.url = url
+        persistentStoreDescriptions = [description]
 
         var loadError: Error?
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        loadPersistentStores(completionHandler: { (storeDescription, error) in
             loadError = error
         })
-
-        if let error = loadError {
-            throw error
-        }
-
-        return container
+        guard let error = loadError else { return }
+        throw error
     }
 }
-
-private struct CoreDataError: Error {}
