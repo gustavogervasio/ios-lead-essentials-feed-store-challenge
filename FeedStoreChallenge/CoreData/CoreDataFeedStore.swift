@@ -53,31 +53,22 @@ public class CoreDataFeedStore: FeedStore {
 
         let context = container.viewContext
         context.perform { [weak self] in
-            guard let feedImageEntity = NSEntityDescription.entity(forEntityName: "PersistentFeedImage", in: context) else {
-                return completion(CoreDataError())
-            }
-
-            guard let feedEntity = NSEntityDescription.entity(forEntityName: "PersistentFeed", in: context) else {
-                return completion(CoreDataError())
-            }
 
             if let fetchedFeed = self?.fetchFeed(from: context) {
                 self?.deleteFeed(fetchedFeed, fromContext: context)
             }
 
-            let images = feed.map { localFeedImage -> NSManagedObject in
-                let persistentFeedImage = NSManagedObject(entity: feedImageEntity, insertInto: context)
-                persistentFeedImage.setValue(localFeedImage.description, forKey: "desc")
-                persistentFeedImage.setValue(localFeedImage.id, forKey: "id")
-                persistentFeedImage.setValue(localFeedImage.location, forKey: "location")
-                persistentFeedImage.setValue(localFeedImage.url, forKey: "url")
-
+            let images = feed.map { localFeedImage -> PersistentFeedImage in
+                let persistentFeedImage = PersistentFeedImage(context: context)
+                persistentFeedImage.id = localFeedImage.id
+                persistentFeedImage.desc = localFeedImage.description
+                persistentFeedImage.location = localFeedImage.location
+                persistentFeedImage.url = localFeedImage.url
                 return persistentFeedImage
             }
-
-            let persistentFeed = NSManagedObject(entity: feedEntity, insertInto: context)
-            persistentFeed.mutableOrderedSetValue(forKeyPath: "images").addObjects(from: images)
-            persistentFeed.setValue(timestamp, forKey: "timestamp")
+            let persistentFeed = PersistentFeed(context: context)
+            persistentFeed.addToImages(NSOrderedSet(array: images))
+            persistentFeed.timestamp = timestamp
 
             completion(self?.save(context: context))
         }
