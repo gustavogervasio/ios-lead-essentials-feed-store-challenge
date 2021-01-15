@@ -15,19 +15,20 @@ public class CoreDataFeedStore: FeedStore {
 
         let context = container.viewContext
         context.perform { [weak self] in
+
             guard let fetchedFeed = self?.fetchFeed(from: context) else {
                 return completion(.empty)
             }
 
-            let images = fetchedFeed.mutableOrderedSetValue(forKeyPath: "images").array as! [NSManagedObject]
-            let timestamp = fetchedFeed.value(forKey: "timestamp") as! Date
+            let images = fetchedFeed.images?.array as? [PersistentFeedImage] ?? []
+            let timestamp = fetchedFeed.timestamp ?? Date()
 
             let localFeed = images.map { image -> LocalFeedImage in
 
-                let id = image.value(forKey: "id") as! UUID
-                let description = image.value(forKey: "desc") as? String
-                let location = image.value(forKey: "location") as? String
-                let url = image.value(forKey: "url") as! URL
+                let id = image.id ?? UUID()
+                let description = image.desc ?? ""
+                let location = image.location ?? ""
+                let url = image.url ?? URL(string: "")!
 
                 return LocalFeedImage(id: id, description: description, location: location, url: url)
             }
@@ -84,9 +85,9 @@ public class CoreDataFeedStore: FeedStore {
         }
     }
 
-    private func fetchFeed(from context: NSManagedObjectContext) -> NSManagedObject? {
+    private func fetchFeed(from context: NSManagedObjectContext) -> PersistentFeed? {
 
-        let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
+        let request = NSFetchRequest<PersistentFeed>(entityName: "PersistentFeed")
         return try? context.fetch(request).first
     }
 
