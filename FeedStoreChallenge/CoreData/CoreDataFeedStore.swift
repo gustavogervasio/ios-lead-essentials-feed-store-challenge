@@ -91,7 +91,7 @@ public class CoreDataFeedStore: FeedStore {
         return try? context.fetch(request).first
     }
 
-    private func deleteFeed(_ feed: NSManagedObject, fromContext context: NSManagedObjectContext) {
+    private func deleteFeed(_ feed: PersistentFeed, fromContext context: NSManagedObjectContext) {
         context.delete(feed)
     }
 }
