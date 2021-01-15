@@ -3,44 +3,19 @@ import CoreData
 
 public class CoreDataFeedStore: FeedStore {
 
-    private struct CoreDataError: Error {}
+    private let context: NSManagedObjectContext
+    private static let modelName = "FeedStore"
 
-    private let container: NSPersistentContainer
-
-    public init(storeURL: URL? = nil) {
-
-        let container: NSPersistentContainer = {
-            let modelName = "FeedStore"
-            guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: modelName, withExtension: "momd") else {
-                fatalError("ModelURL is unavailable")
-            }
-            guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-                fatalError("Model is unavailable")
-            }
-
-            let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
-
-            let description = NSPersistentStoreDescription()
-            description.url = storeURL
-            container.persistentStoreDescriptions = [description]
-
-            container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-                if let error = error {
-                    fatalError("Unresolved error \(error), \(error)")
-                }
-            })
-            return container
-        }()
-
-        self.container = container
+    public init(storeURL: URL) {
+        self.context = CoreDataFeedStore.initializeContainer(storeURL: storeURL).newBackgroundContext()
     }
 
     public func retrieve(completion: @escaping RetrievalCompletion) {
 
-        let context = container.viewContext
+        let context = self.context
         context.perform { [weak self] in
 
-            guard let fetchedFeed = self?.fetchFeed(from: context) else {
+            guard let fetchedFeed = self?.fetchFeed() else {
                 return completion(.empty)
             }
 
@@ -53,36 +28,36 @@ public class CoreDataFeedStore: FeedStore {
 
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 
-        let context = container.viewContext
+        let context = self.context
         context.perform { [weak self] in
 
-            guard let fetchedFeed = self?.fetchFeed(from: context) else {
+            guard let fetchedFeed = self?.fetchFeed() else {
                 return completion(nil)
             }
-            self?.deleteFeed(fetchedFeed, fromContext: context)
-            completion(self?.save(context: context))
+            self?.deleteFeed(fetchedFeed)
+            completion(self?.save())
         }
     }
 
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 
-        let context = container.viewContext
+        let context = self.context
         context.perform { [weak self] in
 
-            if let fetchedFeed = self?.fetchFeed(from: context) {
-                self?.deleteFeed(fetchedFeed, fromContext: context)
+            if let fetchedFeed = self?.fetchFeed() {
+                self?.deleteFeed(fetchedFeed)
             }
 
             let persistentFeed = PersistentFeed(context: context)
             let images = feed.toPersistentFeedImage(from: context)
             persistentFeed.addToImages(NSOrderedSet(array: images))
             persistentFeed.timestamp = timestamp
-            completion(self?.save(context: context))
+            completion(self?.save())
         }
     }
 
     // MARK: - Private Methods
-    private func save(context: NSManagedObjectContext) -> Error? {
+    private func save() -> Error? {
         do {
             try context.save()
             return nil
@@ -91,17 +66,39 @@ public class CoreDataFeedStore: FeedStore {
         }
     }
 
-    private func fetchFeed(from context: NSManagedObjectContext) -> PersistentFeed? {
+    private func fetchFeed() -> PersistentFeed? {
 
         let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
         return try? context.fetch(request).first
     }
 
-    private func deleteFeed(_ feed: PersistentFeed, fromContext context: NSManagedObjectContext) {
+    private func deleteFeed(_ feed: PersistentFeed) {
         context.delete(feed)
     }
-}
 
+    private class func initializeContainer(storeURL: URL) -> NSPersistentContainer {
+
+        guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: CoreDataFeedStore.modelName, withExtension: "momd") else {
+            fatalError("ModelURL is unavailable")
+        }
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Model is unavailable")
+        }
+
+        let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
+
+        let description = NSPersistentStoreDescription()
+        description.url = storeURL
+        container.persistentStoreDescriptions = [description]
+
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error {
+                fatalError("Unresolved error \(error), \(error)")
+            }
+        })
+        return container
+    }
+}
 
 private extension Array where Element == PersistentFeedImage {
 
