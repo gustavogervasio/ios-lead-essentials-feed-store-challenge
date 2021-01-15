@@ -37,6 +37,14 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+
+        let context = container.viewContext
+
+        let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
+        if let fetchedFeed = try? context.fetch(request) {
+            let _ = fetchedFeed.map({context.delete($0)})
+        }
+
         completion(nil)
     }
 
