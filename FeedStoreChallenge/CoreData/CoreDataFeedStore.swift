@@ -41,16 +41,11 @@ public class CoreDataFeedStore: FeedStore {
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 
         let context = container.viewContext
-        context.perform {
+        context.perform { [weak self] in
             let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
             if let fetchedFeed = try? context.fetch(request) {
                 fetchedFeed.forEach({context.delete($0)})
-                do {
-                    try context.save()
-                    completion(nil)
-                } catch {
-                    completion(error)
-                }
+                completion(self?.save(context: context))
             } else {
                 completion(nil)
             }
@@ -60,7 +55,7 @@ public class CoreDataFeedStore: FeedStore {
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 
         let context = container.viewContext
-        context.perform {
+        context.perform { [weak self] in
             guard let feedImageEntity = NSEntityDescription.entity(forEntityName: "PersistentFeedImage", in: context) else {
                 return completion(CoreDataError())
             }
@@ -88,12 +83,17 @@ public class CoreDataFeedStore: FeedStore {
             persistentFeed.mutableOrderedSetValue(forKeyPath: "images").addObjects(from: images)
             persistentFeed.setValue(timestamp, forKey: "timestamp")
 
-            do {
-                try context.save()
-                completion(nil)
-            } catch {
-                completion(error)
-            }
+            completion(self?.save(context: context))
+        }
+    }
+
+    // MARK: - Private Methods
+    private func save(context: NSManagedObjectContext) -> Error? {
+        do {
+            try context.save()
+            return nil
+        } catch {
+            return error
         }
     }
 }
