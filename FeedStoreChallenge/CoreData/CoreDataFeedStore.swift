@@ -23,17 +23,7 @@ public class CoreDataFeedStore: FeedStore {
             let images = fetchedFeed.images?.array as? [PersistentFeedImage] ?? []
             let timestamp = fetchedFeed.timestamp ?? Date()
 
-            let localFeed = images.map { image -> LocalFeedImage in
-
-                let id = image.id ?? UUID()
-                let description = image.desc ?? ""
-                let location = image.location ?? ""
-                let url = image.url ?? URL(string: "")!
-
-                return LocalFeedImage(id: id, description: description, location: location, url: url)
-            }
-
-            completion(.found(feed: localFeed, timestamp: timestamp))
+            completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
         }
     }
 
@@ -93,5 +83,22 @@ public class CoreDataFeedStore: FeedStore {
 
     private func deleteFeed(_ feed: PersistentFeed, fromContext context: NSManagedObjectContext) {
         context.delete(feed)
+    }
+}
+
+
+private extension Array where Element == PersistentFeedImage {
+
+    func toLocalFeedImage() -> [LocalFeedImage] {
+
+        return map { persistentImage -> LocalFeedImage in
+
+            let id = persistentImage.id ?? UUID()
+            let description = persistentImage.desc ?? ""
+            let location = persistentImage.location ?? ""
+            let url = persistentImage.url ?? URL(string: "")!
+
+            return LocalFeedImage(id: id, description: description, location: location, url: url)
+        }
     }
 }
