@@ -40,9 +40,8 @@ public class CoreDataFeedStore: FeedStore {
 
         let context = container.viewContext
         context.perform { [weak self] in
-
             if let fetchedFeed = self?.fetchFeed(from: context) {
-                context.delete(fetchedFeed)
+                self?.deleteFeed(fetchedFeed, fromContext: context)
                 completion(self?.save(context: context))
             } else {
                 completion(nil)
@@ -63,7 +62,7 @@ public class CoreDataFeedStore: FeedStore {
             }
 
             if let fetchedFeed = self?.fetchFeed(from: context) {
-                context.delete(fetchedFeed)
+                self?.deleteFeed(fetchedFeed, fromContext: context)
             }
 
             let images = feed.map { localFeedImage -> NSManagedObject in
@@ -98,5 +97,9 @@ public class CoreDataFeedStore: FeedStore {
 
         let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
         return try? context.fetch(request).first
+    }
+
+    private func deleteFeed(_ feed: NSManagedObject, fromContext context: NSManagedObjectContext) {
+        context.delete(feed)
     }
 }
