@@ -18,6 +18,15 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
     //  Repeat this process until all tests are passing.
     //
     //  ***********************
+    override func setUp() {
+        super.setUp()
+        setupEmptyStoreState()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        undoStoreSideEffects()
+    }
 
 	func test_retrieve_deliversEmptyOnEmptyCache() {
 		let sut = makeSUT()
@@ -94,31 +103,23 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
+        return CoreDataFeedStore(storeURL: testSpecificStoreURL())
+    }
 
-        let container: NSPersistentContainer = {
-            let modelName = "FeedStore"
-            guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: modelName, withExtension: "momd") else {
-                fatalError("ModelURL is unavailable")
-            }
-            guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-                fatalError("Model is unavailable")
-            }
+    private func testSpecificStoreURL() -> URL {
+        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).sqlite")
+    }
 
-            let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
+    private func setupEmptyStoreState() {
+        deleteStoreArtifacts()
+    }
 
-            let description = NSPersistentStoreDescription()
-            description.url = URL(fileURLWithPath: "/dev/null")
-            container.persistentStoreDescriptions = [description]
+    private func undoStoreSideEffects() {
+        deleteStoreArtifacts()
+    }
 
-            container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-                if let error = error {
-                    fatalError("Unresolved error \(error), \(error)")
-                }
-            })
-            return container
-        }()
-
-        return CoreDataFeedStore(container: container)
+    private func deleteStoreArtifacts() {
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 }
 
