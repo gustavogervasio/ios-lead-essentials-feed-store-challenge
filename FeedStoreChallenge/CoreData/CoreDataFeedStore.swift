@@ -6,10 +6,10 @@ public class CoreDataFeedStore: FeedStore {
     private let context: NSManagedObjectContext
     private static let modelName = "FeedStore"
 
-    public init(storeURL: URL) {
-        let container = NSPersistentContainer.initialize(modelName: CoreDataFeedStore.modelName,
-                                                         bundle: Bundle(for: CoreDataFeedStore.self),
-                                                         storeURL: storeURL)
+    public init(storeURL: URL) throws {
+        let container = try NSPersistentContainer.initialize(modelName: CoreDataFeedStore.modelName,
+                                                             bundle: Bundle(for: CoreDataFeedStore.self),
+                                                             storeURL: storeURL)
         self.context = container.newBackgroundContext()
     }
 
@@ -114,13 +114,13 @@ private extension Array where Element == LocalFeedImage {
 
 private extension NSPersistentContainer {
 
-    static func initialize(modelName: String, bundle: Bundle, storeURL: URL) -> NSPersistentContainer {
+    static func initialize(modelName: String, bundle: Bundle, storeURL: URL) throws -> NSPersistentContainer {
 
         guard let modelURL = bundle.url(forResource: modelName, withExtension: "momd") else {
-            fatalError("ModelURL is unavailable")
+            throw CoreDataError()
         }
         guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Model is unavailable")
+            throw CoreDataError()
         }
 
         let container = NSPersistentContainer(name: modelName, managedObjectModel: managedObjectModel)
@@ -129,11 +129,17 @@ private extension NSPersistentContainer {
         description.url = storeURL
         container.persistentStoreDescriptions = [description]
 
+        var loadError: Error?
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error {
-                fatalError("Unresolved error \(error), \(error)")
-            }
+            loadError = error
         })
+
+        if let error = loadError {
+            throw error
+        }
+
         return container
     }
 }
+
+struct CoreDataError: Error {}
