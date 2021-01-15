@@ -14,15 +14,13 @@ public class CoreDataFeedStore: FeedStore {
     public func retrieve(completion: @escaping RetrievalCompletion) {
 
         let context = container.viewContext
-        context.perform {
-            let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
-            guard let fetchedFeed = try? context.fetch(request) else {
-                return completion(.failure(CoreDataError()))
+        context.perform { [weak self] in
+            guard let fetchedFeed = self?.fetchFeed(from: context) else {
+                return completion(.empty)
             }
-            guard let feed = fetchedFeed.first else { return completion(.empty) }
 
-            let images = feed.mutableOrderedSetValue(forKeyPath: "images").array as! [NSManagedObject]
-            let timestamp = feed.value(forKey: "timestamp") as! Date
+            let images = fetchedFeed.mutableOrderedSetValue(forKeyPath: "images").array as! [NSManagedObject]
+            let timestamp = fetchedFeed.value(forKey: "timestamp") as! Date
 
             let localFeed = images.map { image -> LocalFeedImage in
 
@@ -42,9 +40,9 @@ public class CoreDataFeedStore: FeedStore {
 
         let context = container.viewContext
         context.perform { [weak self] in
-            let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
-            if let fetchedFeed = try? context.fetch(request) {
-                fetchedFeed.forEach({context.delete($0)})
+
+            if let fetchedFeed = self?.fetchFeed(from: context) {
+                context.delete(fetchedFeed)
                 completion(self?.save(context: context))
             } else {
                 completion(nil)
@@ -64,9 +62,8 @@ public class CoreDataFeedStore: FeedStore {
                 return completion(CoreDataError())
             }
 
-            let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
-            if let fetchedFeed = try? context.fetch(request) {
-                fetchedFeed.forEach({context.delete($0)})
+            if let fetchedFeed = self?.fetchFeed(from: context) {
+                context.delete(fetchedFeed)
             }
 
             let images = feed.map { localFeedImage -> NSManagedObject in
@@ -95,5 +92,11 @@ public class CoreDataFeedStore: FeedStore {
         } catch {
             return error
         }
+    }
+
+    private func fetchFeed(from context: NSManagedObjectContext) -> NSManagedObject? {
+
+        let request = NSFetchRequest<NSManagedObject>(entityName: "PersistentFeed")
+        return try? context.fetch(request).first
     }
 }
