@@ -142,4 +142,4 @@ private extension NSPersistentContainer {
     }
 }
 
-struct CoreDataError: Error {}
+private struct CoreDataError: Error {}
