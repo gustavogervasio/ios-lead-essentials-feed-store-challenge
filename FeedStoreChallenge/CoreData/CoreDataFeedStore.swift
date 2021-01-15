@@ -49,18 +49,10 @@ public class CoreDataFeedStore: FeedStore {
                 self?.deleteFeed(fetchedFeed, fromContext: context)
             }
 
-            let images = feed.map { localFeedImage -> PersistentFeedImage in
-                let persistentFeedImage = PersistentFeedImage(context: context)
-                persistentFeedImage.id = localFeedImage.id
-                persistentFeedImage.desc = localFeedImage.description
-                persistentFeedImage.location = localFeedImage.location
-                persistentFeedImage.url = localFeedImage.url
-                return persistentFeedImage
-            }
             let persistentFeed = PersistentFeed(context: context)
+            let images = feed.toPersistentFeedImage(from: context)
             persistentFeed.addToImages(NSOrderedSet(array: images))
             persistentFeed.timestamp = timestamp
-
             completion(self?.save(context: context))
         }
     }
@@ -99,6 +91,23 @@ private extension Array where Element == PersistentFeedImage {
             let url = persistentImage.url ?? URL(string: "")!
 
             return LocalFeedImage(id: id, description: description, location: location, url: url)
+        }
+    }
+}
+
+
+private extension Array where Element == LocalFeedImage {
+
+    func toPersistentFeedImage(from context: NSManagedObjectContext) -> [PersistentFeedImage] {
+
+        return map { feedImage -> PersistentFeedImage in
+
+            let persistentFeedImage = PersistentFeedImage(context: context)
+            persistentFeedImage.id = feedImage.id
+            persistentFeedImage.desc = feedImage.description
+            persistentFeedImage.location = feedImage.location
+            persistentFeedImage.url = feedImage.url
+            return persistentFeedImage
         }
     }
 }
