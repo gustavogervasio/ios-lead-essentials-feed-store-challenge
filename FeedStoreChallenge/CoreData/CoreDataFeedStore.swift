@@ -95,7 +95,6 @@ private extension Array where Element == PersistentFeedImage {
     }
 }
 
-
 private extension Array where Element == LocalFeedImage {
 
     func toPersistentFeedImage(from context: NSManagedObjectContext) -> [PersistentFeedImage] {
