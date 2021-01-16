@@ -20,6 +20,7 @@
 		08CE2BB52285BEF100183A1B /* FeedStoreChallengeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CE2BB42285BEF100183A1B /* FeedStoreChallengeTests.swift */; };
 		1CDA225A25B0FAA20093A1D1 /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */; };
 		1CDA225F25B0FF380093A1D1 /* FeedStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA225D25B0FF380093A1D1 /* FeedStore.xcdatamodeld */; };
+		1CDA229025B3265E0093A1D1 /* PersistentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		08CE2BB42285BEF100183A1B /* FeedStoreChallengeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStoreChallengeTests.swift; sourceTree = "<group>"; };
 		1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 		1CDA225E25B0FF380093A1D1 /* FeedStore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedStore.xcdatamodel; sourceTree = "<group>"; };
+		1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentContainer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */,
+				1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */,
 				1CDA225D25B0FF380093A1D1 /* FeedStore.xcdatamodeld */,
 			);
 			path = CoreData;
@@ -244,6 +247,7 @@
 			files = (
 				1CDA225A25B0FAA20093A1D1 /* CoreDataFeedStore.swift in Sources */,
 				08CE2BA62285BCB600183A1B /* FeedStore.swift in Sources */,
+				1CDA229025B3265E0093A1D1 /* PersistentContainer.swift in Sources */,
 				08CE2BA82285BCC600183A1B /* LocalFeedImage.swift in Sources */,
 				1CDA225F25B0FF380093A1D1 /* FeedStore.xcdatamodeld in Sources */,
 			);
