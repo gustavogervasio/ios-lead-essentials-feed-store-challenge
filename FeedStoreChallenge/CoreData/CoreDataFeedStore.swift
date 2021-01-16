@@ -35,7 +35,7 @@ public class CoreDataFeedStore: FeedStore {
                 return completion(nil)
             }
             self?.deleteFeed(fetchedFeed)
-            completion(self?.save())
+            completion(self?.saveIfNeeded())
         }
     }
 
@@ -52,18 +52,20 @@ public class CoreDataFeedStore: FeedStore {
             let images = feed.toPersistentFeedImage(from: context)
             persistentFeed.addToImages(NSOrderedSet(array: images))
             persistentFeed.timestamp = timestamp
-            completion(self?.save())
+            completion(self?.saveIfNeeded())
         }
     }
 
     // MARK: - Private Methods
-    private func save() -> Error? {
-        do {
-            try context.save()
-            return nil
-        } catch {
-            return error
+    private func saveIfNeeded() -> Error? {
+        if hasChanged() {
+            do {
+                try context.save()
+            } catch {
+                return error
+            }
         }
+        return nil
     }
 
     private func fetchFeed() -> PersistentFeed? {
@@ -74,6 +76,10 @@ public class CoreDataFeedStore: FeedStore {
 
     private func deleteFeed(_ feed: PersistentFeed) {
         context.delete(feed)
+    }
+
+    private func hasChanged() -> Bool {
+        return context.hasChanges
     }
 }
 
