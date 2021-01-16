@@ -21,6 +21,10 @@
 		1CDA225A25B0FAA20093A1D1 /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */; };
 		1CDA225F25B0FF380093A1D1 /* FeedStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA225D25B0FF380093A1D1 /* FeedStore.xcdatamodeld */; };
 		1CDA229025B3265E0093A1D1 /* PersistentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */; };
+		1CDA229A25B32C590093A1D1 /* PersistentFeed+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA229625B32C590093A1D1 /* PersistentFeed+CoreDataClass.swift */; };
+		1CDA229B25B32C590093A1D1 /* PersistentFeed+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA229725B32C590093A1D1 /* PersistentFeed+CoreDataProperties.swift */; };
+		1CDA229C25B32C590093A1D1 /* PersistentFeedImage+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA229825B32C590093A1D1 /* PersistentFeedImage+CoreDataClass.swift */; };
+		1CDA229D25B32C590093A1D1 /* PersistentFeedImage+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CDA229925B32C590093A1D1 /* PersistentFeedImage+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +55,10 @@
 		1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 		1CDA225E25B0FF380093A1D1 /* FeedStore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FeedStore.xcdatamodel; sourceTree = "<group>"; };
 		1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentContainer.swift; sourceTree = "<group>"; };
+		1CDA229625B32C590093A1D1 /* PersistentFeed+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentFeed+CoreDataClass.swift"; sourceTree = "<group>"; };
+		1CDA229725B32C590093A1D1 /* PersistentFeed+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentFeed+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		1CDA229825B32C590093A1D1 /* PersistentFeedImage+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentFeedImage+CoreDataClass.swift"; sourceTree = "<group>"; };
+		1CDA229925B32C590093A1D1 /* PersistentFeedImage+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentFeedImage+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,11 +136,23 @@
 		1CDA225825B0FA890093A1D1 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				1CDA229525B32C380093A1D1 /* Models */,
 				1CDA225925B0FAA20093A1D1 /* CoreDataFeedStore.swift */,
 				1CDA228F25B3265E0093A1D1 /* PersistentContainer.swift */,
 				1CDA225D25B0FF380093A1D1 /* FeedStore.xcdatamodeld */,
 			);
 			path = CoreData;
+			sourceTree = "<group>";
+		};
+		1CDA229525B32C380093A1D1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1CDA229625B32C590093A1D1 /* PersistentFeed+CoreDataClass.swift */,
+				1CDA229725B32C590093A1D1 /* PersistentFeed+CoreDataProperties.swift */,
+				1CDA229825B32C590093A1D1 /* PersistentFeedImage+CoreDataClass.swift */,
+				1CDA229925B32C590093A1D1 /* PersistentFeedImage+CoreDataProperties.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,8 +267,12 @@
 			files = (
 				1CDA225A25B0FAA20093A1D1 /* CoreDataFeedStore.swift in Sources */,
 				08CE2BA62285BCB600183A1B /* FeedStore.swift in Sources */,
+				1CDA229A25B32C590093A1D1 /* PersistentFeed+CoreDataClass.swift in Sources */,
 				1CDA229025B3265E0093A1D1 /* PersistentContainer.swift in Sources */,
+				1CDA229B25B32C590093A1D1 /* PersistentFeed+CoreDataProperties.swift in Sources */,
 				08CE2BA82285BCC600183A1B /* LocalFeedImage.swift in Sources */,
+				1CDA229D25B32C590093A1D1 /* PersistentFeedImage+CoreDataProperties.swift in Sources */,
+				1CDA229C25B32C590093A1D1 /* PersistentFeedImage+CoreDataClass.swift in Sources */,
 				1CDA225F25B0FF380093A1D1 /* FeedStore.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
