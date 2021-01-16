@@ -76,9 +76,7 @@ class FeedStoreIntegrationTests: XCTestCase {
     // - MARK: Helpers
 
     private func makeSUT() -> FeedStore {
-        return try! CoreDataFeedStore(modelName: "FeedStore",
-                                      storeURL: testSpecificStoreURL(),
-                                      bundle: Bundle(for: CoreDataFeedStore.self))
+        return try! CoreDataFeedStore(storeURL: testSpecificStoreURL())
     }
 
     private func testSpecificStoreURL() -> URL {

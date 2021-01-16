@@ -5,8 +5,8 @@ public class CoreDataFeedStore: FeedStore {
 
     private let context: NSManagedObjectContext
 
-    public init(modelName: String, storeURL: URL, bundle: Bundle) throws {
-        let container = try PersistentContainer(modelName: modelName, storeURL: storeURL, bundle: bundle)
+    public init(storeURL: URL) throws {
+        let container = try PersistentContainer(storeURL: storeURL)
         self.context = container.newBackgroundContext()
     }
 
@@ -113,9 +113,17 @@ final class PersistentContainer: NSPersistentContainer {
 
     private struct CoreDataInitError: Error {}
 
-    required init(modelName: String, storeURL: URL, bundle: Bundle) throws {
+    static private let modelName = {
+        return "FeedStore"
+    }()
 
-        guard let modelURL = bundle.url(forResource: modelName, withExtension: "momd") else {
+    static private let bundle = {
+        return Bundle(for: PersistentContainer.self)
+    }()
+
+    required init(storeURL: URL) throws {
+
+        guard let modelURL = PersistentContainer.bundle.url(forResource: PersistentContainer.modelName, withExtension: "momd") else {
             throw CoreDataInitError()
         }
 
@@ -123,7 +131,7 @@ final class PersistentContainer: NSPersistentContainer {
             throw CoreDataInitError()
         }
 
-        super.init(name: modelName, managedObjectModel: managedObjectModel)
+        super.init(name: PersistentContainer.modelName, managedObjectModel: managedObjectModel)
 
         try loadStoresFromURL(storeURL)
     }
