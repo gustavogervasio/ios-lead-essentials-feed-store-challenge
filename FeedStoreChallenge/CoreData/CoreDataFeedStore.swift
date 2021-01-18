@@ -126,7 +126,7 @@ private extension PersistentFeed {
 
     static func first(in context: NSManagedObjectContext) throws -> PersistentFeed? {
 
-        let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
+        let request: NSFetchRequest<PersistentFeed> = PersistentFeed.fetchRequest()
         return try context.fetch(request).first
     }
 }
