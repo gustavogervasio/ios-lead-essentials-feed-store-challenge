@@ -20,8 +20,8 @@ public class CoreDataFeedStore: FeedStore {
                     return completion(.empty)
                 }
 
-                let images = fetchedFeed.images?.array as? [PersistentFeedImage] ?? []
-                let timestamp = fetchedFeed.timestamp ?? Date()
+                let images = fetchedFeed.images.array as? [PersistentFeedImage] ?? []
+                let timestamp = fetchedFeed.timestamp
 
                 completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
 
@@ -108,10 +108,10 @@ private extension Array where Element == PersistentFeedImage {
 
         return map { persistentImage -> LocalFeedImage in
 
-            let id = persistentImage.id ?? UUID()
-            let description = persistentImage.desc ?? ""
-            let location = persistentImage.location ?? ""
-            let url = persistentImage.url ?? URL(string: "")!
+            let id = persistentImage.id
+            let description = persistentImage.desc
+            let location = persistentImage.location
+            let url = persistentImage.url
 
             return LocalFeedImage(id: id, description: description, location: location, url: url)
         }

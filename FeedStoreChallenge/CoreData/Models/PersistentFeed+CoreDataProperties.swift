@@ -7,8 +7,8 @@ extension PersistentFeed {
         return NSFetchRequest<PersistentFeed>(entityName: "PersistentFeed")
     }
 
-    @NSManaged public var timestamp: Date?
-    @NSManaged public var images: NSOrderedSet?
+    @NSManaged public var timestamp: Date
+    @NSManaged public var images: NSOrderedSet
 
 }
 

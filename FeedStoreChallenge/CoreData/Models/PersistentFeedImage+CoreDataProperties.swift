@@ -8,9 +8,9 @@ extension PersistentFeedImage {
     }
 
     @NSManaged public var desc: String?
-    @NSManaged public var id: UUID?
+    @NSManaged public var id: UUID
     @NSManaged public var location: String?
-    @NSManaged public var url: URL?
+    @NSManaged public var url: URL
     @NSManaged public var feed: PersistentFeed?
 
 }
