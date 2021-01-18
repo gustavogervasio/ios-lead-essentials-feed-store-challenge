@@ -15,14 +15,20 @@ public class CoreDataFeedStore: FeedStore {
         let context = self.context
         context.perform { [weak self] in
 
-            guard let fetchedFeed = self?.fetchFeed() else {
-                return completion(.empty)
+            do {
+                guard let fetchedFeed = try self?.fetchFeed() else {
+                    return completion(.empty)
+                }
+
+                let images = fetchedFeed.images?.array as? [PersistentFeedImage] ?? []
+                let timestamp = fetchedFeed.timestamp ?? Date()
+
+                completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
+
+            } catch {
+
+                completion(.failure(error))
             }
-
-            let images = fetchedFeed.images?.array as? [PersistentFeedImage] ?? []
-            let timestamp = fetchedFeed.timestamp ?? Date()
-
-            completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
         }
     }
 
@@ -31,11 +37,17 @@ public class CoreDataFeedStore: FeedStore {
         let context = self.context
         context.perform { [weak self] in
 
-            guard let fetchedFeed = self?.fetchFeed() else {
-                return completion(nil)
+            do {
+
+                guard let fetchedFeed = try self?.fetchFeed() else {
+                    return completion(nil)
+                }
+                self?.deleteFeed(fetchedFeed)
+                completion(self?.saveIfNeeded())
+
+            } catch {
+                completion(error)
             }
-            self?.deleteFeed(fetchedFeed)
-            completion(self?.saveIfNeeded())
         }
     }
 
@@ -44,15 +56,22 @@ public class CoreDataFeedStore: FeedStore {
         let context = self.context
         context.perform { [weak self] in
 
-            if let fetchedFeed = self?.fetchFeed() {
-                self?.deleteFeed(fetchedFeed)
-            }
+            do {
 
-            let persistentFeed = PersistentFeed(from: context)
-            let images = feed.toPersistentFeedImage(from: context)
-            persistentFeed.addToImages(NSOrderedSet(array: images))
-            persistentFeed.timestamp = timestamp
-            completion(self?.saveIfNeeded())
+                if let fetchedFeed = try self?.fetchFeed() {
+                    self?.deleteFeed(fetchedFeed)
+                }
+
+                let persistentFeed = PersistentFeed(from: context)
+                let images = feed.toPersistentFeedImage(from: context)
+                persistentFeed.addToImages(NSOrderedSet(array: images))
+                persistentFeed.timestamp = timestamp
+                completion(self?.saveIfNeeded())
+
+            } catch {
+
+                completion(error)
+            }
         }
     }
 
@@ -68,10 +87,10 @@ public class CoreDataFeedStore: FeedStore {
         return nil
     }
 
-    private func fetchFeed() -> PersistentFeed? {
+    private func fetchFeed() throws -> PersistentFeed? {
 
         let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
-        return try? context.fetch(request).first
+        return try context.fetch(request).first
     }
 
     private func deleteFeed(_ feed: PersistentFeed) {
