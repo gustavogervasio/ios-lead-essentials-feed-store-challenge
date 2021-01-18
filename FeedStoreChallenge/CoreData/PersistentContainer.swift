@@ -5,13 +5,8 @@ final class PersistentContainer: NSPersistentContainer {
 
     private struct CoreDataInitError: Error {}
 
-    static private let modelName = {
-        return "FeedStore"
-    }()
-
-    static private let bundle = {
-        return Bundle(for: PersistentContainer.self)
-    }()
+    static private let modelName = "FeedStore"
+    static private let bundle = Bundle(for: PersistentContainer.self)
 
     required init(storeURL: URL) throws {
 
