@@ -16,11 +16,10 @@ public class CoreDataFeedStore: FeedStore {
         context.perform { [weak self] in
 
             do {
-                guard let fetchedFeed = try self?.fetchFeed() else {
+                guard let fetchedFeed = try self?.fetchFeed(), let images = fetchedFeed.images.array as? [PersistentFeedImage] else {
                     return completion(.empty)
                 }
 
-                let images = fetchedFeed.images.array as? [PersistentFeedImage] ?? []
                 let timestamp = fetchedFeed.timestamp
 
                 completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
