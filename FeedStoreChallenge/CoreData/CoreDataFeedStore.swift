@@ -41,8 +41,7 @@ public class CoreDataFeedStore: FeedStore {
                 guard let fetchedFeed = try self?.fetchFeed() else {
                     return completion(nil)
                 }
-                self?.deleteFeed(fetchedFeed)
-
+                context.delete(fetchedFeed)
                 completion(context.saveIfNeeded())
 
             } catch {
@@ -59,7 +58,7 @@ public class CoreDataFeedStore: FeedStore {
             do {
 
                 if let fetchedFeed = try self?.fetchFeed() {
-                    self?.deleteFeed(fetchedFeed)
+                    context.delete(fetchedFeed)
                 }
 
                 let persistentFeed = PersistentFeed(context: context)
@@ -81,11 +80,6 @@ public class CoreDataFeedStore: FeedStore {
         let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
         return try context.fetch(request).first
     }
-
-    private func deleteFeed(_ feed: PersistentFeed) {
-        context.delete(feed)
-    }
-
 }
 
 private extension Array where Element == PersistentFeedImage {
