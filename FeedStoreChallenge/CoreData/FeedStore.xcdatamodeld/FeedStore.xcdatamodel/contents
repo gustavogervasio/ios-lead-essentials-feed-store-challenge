@@ -2,7 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="PersistentFeed" representedClassName="PersistentFeed" syncable="YES">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="images" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="PersistentFeedImage" inverseName="feed" inverseEntity="PersistentFeedImage"/>
+        <relationship name="images" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="PersistentFeedImage" inverseName="feed" inverseEntity="PersistentFeedImage"/>
     </entity>
     <entity name="PersistentFeedImage" representedClassName="PersistentFeedImage" syncable="YES">
         <attribute name="desc" optional="YES" attributeType="String"/>
