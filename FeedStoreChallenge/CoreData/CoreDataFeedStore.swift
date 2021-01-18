@@ -106,7 +106,7 @@ private extension Array where Element == PersistentFeedImage {
 
     func toLocalFeedImage() -> [LocalFeedImage] {
 
-        return map { persistentImage -> LocalFeedImage in
+        return compactMap { persistentImage -> LocalFeedImage in
 
             let id = persistentImage.id
             let description = persistentImage.desc
@@ -122,7 +122,7 @@ private extension Array where Element == LocalFeedImage {
 
     func toPersistentFeedImage(from context: NSManagedObjectContext) -> [PersistentFeedImage] {
 
-        return map { feedImage -> PersistentFeedImage in
+        return compactMap { feedImage -> PersistentFeedImage in
 
             let persistentFeedImage = PersistentFeedImage(from: context)
             persistentFeedImage.id = feedImage.id
