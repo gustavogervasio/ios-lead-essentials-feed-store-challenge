@@ -42,7 +42,8 @@ public class CoreDataFeedStore: FeedStore {
                     return completion(nil)
                 }
                 self?.deleteFeed(fetchedFeed)
-                completion(self?.saveIfNeeded())
+
+                completion(context.saveIfNeeded())
 
             } catch {
                 completion(error)
@@ -61,31 +62,20 @@ public class CoreDataFeedStore: FeedStore {
                     self?.deleteFeed(fetchedFeed)
                 }
 
-                let persistentFeed = PersistentFeed(from: context)
+                let persistentFeed = PersistentFeed(context: context)
                 let images = feed.toPersistentFeedImage(from: context)
                 persistentFeed.addToImages(NSOrderedSet(array: images))
                 persistentFeed.timestamp = timestamp
-                completion(self?.saveIfNeeded())
+
+                completion(context.saveIfNeeded())
 
             } catch {
-
                 completion(error)
             }
         }
     }
 
     // MARK: - Private Methods
-    private func saveIfNeeded() -> Error? {
-        if hasChanged() {
-            do {
-                try context.save()
-            } catch {
-                return error
-            }
-        }
-        return nil
-    }
-
     private func fetchFeed() throws -> PersistentFeed? {
 
         let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
@@ -96,9 +86,6 @@ public class CoreDataFeedStore: FeedStore {
         context.delete(feed)
     }
 
-    private func hasChanged() -> Bool {
-        return context.hasChanges
-    }
 }
 
 private extension Array where Element == PersistentFeedImage {
@@ -123,7 +110,7 @@ private extension Array where Element == LocalFeedImage {
 
         return compactMap { feedImage -> PersistentFeedImage in
 
-            let persistentFeedImage = PersistentFeedImage(from: context)
+            let persistentFeedImage = PersistentFeedImage(context: context)
             persistentFeedImage.id = feedImage.id
             persistentFeedImage.desc = feedImage.description
             persistentFeedImage.location = feedImage.location
@@ -133,11 +120,16 @@ private extension Array where Element == LocalFeedImage {
     }
 }
 
-extension NSManagedObject {
+extension NSManagedObjectContext {
 
-    convenience init(from context: NSManagedObjectContext) {
-        let name = String(describing: type(of: self))
-        let entity = NSEntityDescription.entity(forEntityName: name, in: context)!
-        self.init(entity: entity, insertInto: context)
+    func saveIfNeeded() -> Error? {
+        if hasChanges {
+            do {
+                try save()
+            } catch {
+                return error
+            }
+        }
+        return nil
     }
 }
