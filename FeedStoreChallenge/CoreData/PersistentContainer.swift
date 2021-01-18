@@ -7,14 +7,11 @@ final class PersistentContainer: NSPersistentContainer {
 
     static private let modelName = "FeedStore"
     static private let bundle = Bundle(for: PersistentContainer.self)
+    private static let model = NSManagedObjectModel.with(name: modelName, in: Bundle(for: PersistentContainer.self))
 
     required init(storeURL: URL) throws {
 
-        guard let modelURL = PersistentContainer.bundle.url(forResource: PersistentContainer.modelName, withExtension: "momd") else {
-            throw ModelNotFound()
-        }
-
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+        guard let managedObjectModel = PersistentContainer.model else {
             throw ModelNotFound()
         }
 
@@ -36,5 +33,11 @@ final class PersistentContainer: NSPersistentContainer {
         })
         guard let error = loadError else { return }
         throw error
+    }
+}
+
+extension NSManagedObjectModel {
+    static func with(name: String, in bundle: Bundle) -> NSManagedObjectModel? {
+        return bundle.url(forResource: name, withExtension: "momd").flatMap { NSManagedObjectModel(contentsOf: $0) }
     }
 }
