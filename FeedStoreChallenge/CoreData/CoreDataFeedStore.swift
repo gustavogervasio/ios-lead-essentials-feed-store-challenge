@@ -13,13 +13,14 @@ public class CoreDataFeedStore: FeedStore {
     public func retrieve(completion: @escaping RetrievalCompletion) {
 
         let context = self.context
-        context.perform { [weak self] in
+        context.perform {
 
             do {
-                guard let fetchedFeed = try self?.fetchFeed(), let images = fetchedFeed.images.array as? [PersistentFeedImage] else {
+                guard let fetchedFeed = try PersistentFeed.first(in: context),
+                      let images = fetchedFeed.images.array as? [PersistentFeedImage] else {
+
                     return completion(.empty)
                 }
-
                 let timestamp = fetchedFeed.timestamp
 
                 completion(.found(feed: images.toLocalFeedImage(), timestamp: timestamp))
@@ -34,11 +35,11 @@ public class CoreDataFeedStore: FeedStore {
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 
         let context = self.context
-        context.perform { [weak self] in
+        context.perform {
 
             do {
 
-                guard let fetchedFeed = try self?.fetchFeed() else {
+                guard let fetchedFeed = try PersistentFeed.first(in: context) else {
                     return completion(nil)
                 }
                 context.delete(fetchedFeed)
@@ -53,11 +54,11 @@ public class CoreDataFeedStore: FeedStore {
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 
         let context = self.context
-        context.perform { [weak self] in
+        context.perform {
 
             do {
 
-                if let fetchedFeed = try self?.fetchFeed() {
+                if let fetchedFeed = try PersistentFeed.first(in: context) {
                     context.delete(fetchedFeed)
                 }
 
@@ -72,13 +73,6 @@ public class CoreDataFeedStore: FeedStore {
                 completion(error)
             }
         }
-    }
-
-    // MARK: - Private Methods
-    private func fetchFeed() throws -> PersistentFeed? {
-
-        let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
-        return try context.fetch(request).first
     }
 }
 
@@ -125,5 +119,14 @@ extension NSManagedObjectContext {
             }
         }
         return nil
+    }
+}
+
+private extension PersistentFeed {
+
+    static func first(in context: NSManagedObjectContext) throws -> PersistentFeed? {
+
+        let request = NSFetchRequest<PersistentFeed>(entityName: "\(PersistentFeed.self)")
+        return try context.fetch(request).first
     }
 }
