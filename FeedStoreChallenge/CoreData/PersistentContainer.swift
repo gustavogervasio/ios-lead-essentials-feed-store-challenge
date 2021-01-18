@@ -3,7 +3,7 @@ import CoreData
 
 final class PersistentContainer: NSPersistentContainer {
 
-    private struct CoreDataInitError: Error {}
+    private struct ModelNotFound: Error {}
 
     static private let modelName = "FeedStore"
     static private let bundle = Bundle(for: PersistentContainer.self)
@@ -11,11 +11,11 @@ final class PersistentContainer: NSPersistentContainer {
     required init(storeURL: URL) throws {
 
         guard let modelURL = PersistentContainer.bundle.url(forResource: PersistentContainer.modelName, withExtension: "momd") else {
-            throw CoreDataInitError()
+            throw ModelNotFound()
         }
 
         guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            throw CoreDataInitError()
+            throw ModelNotFound()
         }
 
         super.init(name: PersistentContainer.modelName, managedObjectModel: managedObjectModel)
